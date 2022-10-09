@@ -1,7 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from pydantic import BaseModel
+
+
+class Student(BaseModel):
+    age: int
+    first_name: str
+    family_name: str
+    grade: str
+
 
 
 app = FastAPI()
@@ -21,7 +30,7 @@ while True:
 cursor.execute("select * from information_schema.tables where table_name=%s", ('students',))
 if not bool(cursor.rowcount):
     create_studentTable_query = """CREATE TABLE students (
-                            id int NOT NULL PRIMARY KEY,
+                            id serial NOT NULL PRIMARY KEY,
                             age int NOT NULL,
                             First_Name varchar(255) NOT NULL,
                             Family_Name varchar(255) NOT NULL,
@@ -30,8 +39,16 @@ if not bool(cursor.rowcount):
     cursor.execute(create_studentTable_query)
     conn.commit()
 
-# cursor.execute("select * from information_schema.tables where table_name=%s", ('students',))
-# print(bool(cursor.rowcount))
+
+# Add new Students
+
+@app.post("/students", status_code=status.HTTP_201_CREATED)
+def add_students(student: Student):
+    cursor.execute("""INSERT INTO students (age, first_name, family_name, grade) VALUES (%s, %s, %s, %s) RETURNING *""", 
+                    (student.age, student.first_name, student.family_name, student.grade))
+    new_student = cursor.fetchone()
+    conn.commit()
+    return new_student
 
 
 @app.get("/students")
