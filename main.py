@@ -9,6 +9,7 @@ class Student(BaseModel):
     age: int = None
     first_name: str = None
     family_name: str = None
+    gender: str = None
     grade: str = None
 
 
@@ -34,6 +35,7 @@ if not bool(cursor.rowcount):
                             age int NOT NULL,
                             First_Name varchar(255) NOT NULL,
                             Family_Name varchar(255) NOT NULL,
+                            Gender varchar NOT NULL,
                             Grade varchar NOT NULL
                         )"""
     cursor.execute(create_studentTable_query)
@@ -44,8 +46,8 @@ if not bool(cursor.rowcount):
 
 @app.post("/students", status_code=status.HTTP_201_CREATED)
 def add_students(student: Student):
-    cursor.execute("""INSERT INTO students (age, first_name, family_name, grade) VALUES (%s, %s, %s, %s) RETURNING *""", 
-                    (student.age, student.first_name, student.family_name, student.grade))
+    cursor.execute("""INSERT INTO students (age, first_name, family_name, gender, grade) VALUES (%s, %s, %s, %s, %s) RETURNING *""", 
+                    (student.age, student.first_name, student.family_name, student.gender, student.grade))
     new_student = cursor.fetchone()
     conn.commit()
     return new_student
@@ -79,12 +81,25 @@ def update_student(id: int, updated_student: Student):
 
     student = Student(**student)
     updated_student = student.copy(update=updated_student.dict(exclude_unset=True))
-    print(updated_student)
-    cursor.execute("""UPDATE students SET age = %s, First_Name = %s, Family_Name = %s, Grade = %s WHERE id = %s RETURNING *""", 
+    cursor.execute("""UPDATE students SET age = %s, First_Name = %s, Family_Name = %s, Gender = %s, Grade = %s WHERE id = %s RETURNING *""", 
                     (str(updated_student.age), updated_student.first_name, 
-                        updated_student.family_name, updated_student.grade, str(id)))
+                        updated_student.family_name, updated_student.gender ,updated_student.grade, str(id)))
 
     updated_student = cursor.fetchone()
     conn.commit()
 
     return updated_student
+
+
+# Delete student by id
+
+@app.delete("/students/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_student(id: int):
+    cursor.execute("""DELETE FROM students WHERE id = %s RETURNING *""", (str(id)))
+    deleted_student = cursor.fetchone()
+
+    if deleted_student == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"student with {id} was not found")
+
+    conn.commit()
+    return deleted_student
