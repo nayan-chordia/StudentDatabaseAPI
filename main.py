@@ -73,7 +73,7 @@ def get_students(id):
 @app.patch("/students/{id}")
 def update_student(id: int, updated_student: Student):
 
-    cursor.execute("""SELECT * FROM students WHERE id = %s""", (str(id)))
+    cursor.execute("""SELECT * FROM students WHERE id = %s""", (str(id),))
     student = cursor.fetchone()
 
     if student == None:
@@ -95,7 +95,7 @@ def update_student(id: int, updated_student: Student):
 
 @app.delete("/students/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_student(id: int):
-    cursor.execute("""DELETE FROM students WHERE id = %s RETURNING *""", (str(id)))
+    cursor.execute("""DELETE FROM students WHERE id = %s RETURNING *""", (str(id),))
     deleted_student = cursor.fetchone()
 
     if deleted_student == None:
