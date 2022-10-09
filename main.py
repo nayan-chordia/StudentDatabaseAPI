@@ -6,10 +6,10 @@ from pydantic import BaseModel
 
 
 class Student(BaseModel):
-    age: int
-    first_name: str
-    family_name: str
-    grade: str
+    age: int = None
+    first_name: str = None
+    family_name: str = None
+    grade: str = None
 
 
 
@@ -50,11 +50,41 @@ def add_students(student: Student):
     conn.commit()
     return new_student
 
+# Get all students
 
 @app.get("/students")
 def get_students():
-    # cursor.execute("""SELECT * FROM posts""")
-    # posts = cursor.fetchall()
-    # return posts
+    cursor.execute("""SELECT * FROM students""")
+    students = cursor.fetchall()
+    return students
 
-    return {"message": "hi from nayan"}
+# Get student by id
+
+@app.get("/students/{id}")
+def get_students(id):
+    cursor.execute("""SELECT * FROM students WHERE id = %s""", (str(id)))
+    student = cursor.fetchone()
+    return student
+
+# Update Student
+
+@app.patch("/students/{id}")
+def update_student(id: int, updated_student: Student):
+
+    cursor.execute("""SELECT * FROM students WHERE id = %s""", (str(id)))
+    student = cursor.fetchone()
+
+    if student == None:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"student with {id} was not found")
+
+    student = Student(**student)
+    updated_student = student.copy(update=updated_student.dict(exclude_unset=True))
+    print(updated_student)
+    cursor.execute("""UPDATE students SET age = %s, First_Name = %s, Family_Name = %s, Grade = %s WHERE id = %s RETURNING *""", 
+                    (str(updated_student.age), updated_student.first_name, 
+                        updated_student.family_name, updated_student.grade, str(id)))
+
+    updated_student = cursor.fetchone()
+    conn.commit()
+
+    return updated_student
