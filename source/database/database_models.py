@@ -1,7 +1,7 @@
 import time
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from ...configuration.config import settings
+from configuration.config import settings
 
 host = settings.database_hostname
 db = settings.database_name

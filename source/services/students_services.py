@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
-from ..database import database_models
-from ..schemas import data_schema
+from source.database import database_models
+from source.schemas import data_schema
 
 
 def add_students(student: data_schema.Student):

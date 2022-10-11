@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
-from ..schemas import data_schema
-from ..services import students_services
+from source.schemas import data_schema
+from source.services import students_services
 
 router = APIRouter()
 
