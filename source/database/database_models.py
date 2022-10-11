@@ -15,7 +15,7 @@ while True:
         print("Database connection is successful")
         break
     except Exception as error:
-        print("Connecting to databse failed")
+        print("Connecting to database failed")
         print("Error: ", error)
         time.sleep(2)
 
