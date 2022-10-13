@@ -8,6 +8,19 @@ db = settings.database_name
 username = settings.database_username
 pwd = settings.database_password
 
+
+def create_table():
+    create_studentTable_query = """CREATE TABLE students (
+                            id serial NOT NULL PRIMARY KEY,
+                            age int NOT NULL,
+                            First_Name varchar(255) NOT NULL,
+                            Family_Name varchar(255) NOT NULL,
+                            Gender varchar NOT NULL,
+                            Grade varchar NOT NULL
+                        )"""
+    cursor.execute(create_studentTable_query)
+    conn.commit()
+
 while True:
     try:
         conn = psycopg2.connect(host=host,database=db,user=username, password=pwd, cursor_factory=RealDictCursor)
@@ -20,15 +33,7 @@ while True:
         time.sleep(2)
 
 
+# This checks if we have already created table or not
 cursor.execute("select * from information_schema.tables where table_name=%s", ('students',))
 if not bool(cursor.rowcount):
-    create_studentTable_query = """CREATE TABLE students (
-                            id serial NOT NULL PRIMARY KEY,
-                            age int NOT NULL,
-                            First_Name varchar(255) NOT NULL,
-                            Family_Name varchar(255) NOT NULL,
-                            Gender varchar NOT NULL,
-                            Grade varchar NOT NULL
-                        )"""
-    cursor.execute(create_studentTable_query)
-    conn.commit()
+    create_table()
