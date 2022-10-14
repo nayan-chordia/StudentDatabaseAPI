@@ -25,6 +25,7 @@ no_id = [10000,10001,-1,-2,0,100000]
 ])
 def test_create_student(details):
     res = client.post("/students", json=details)
+    assert res != None
     assert res.status_code == 201
     res = res.json()
     del res['id']
