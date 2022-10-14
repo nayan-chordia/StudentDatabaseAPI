@@ -12,7 +12,7 @@ def add_students(student: data_schema.Student):
 
 
 def get_students():
-    database_models.cursor.execute("""SELECT * FROM students""")
+    database_models.cursor.execute("""SELECT * FROM students ORDER BY id ASC""")
     students = database_models.cursor.fetchall()
     return students
 
