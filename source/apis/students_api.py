@@ -21,7 +21,7 @@ def get_students():
 # Get student by id
 
 @router.get("/students/{id}")
-def get_students(id):
+def get_students(id: int):
     return students_services.get_student_by_id(id)
 
 # Update Student
